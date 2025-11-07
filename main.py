@@ -5,7 +5,6 @@ from pydantic import BaseModel
 import openai
 import os
 
-# OpenAI API 키 설정
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = FastAPI()
@@ -22,20 +21,29 @@ app.add_middleware(
 class Message(BaseModel):
     user_input: str
 
-# 채팅 API
+# 요트 전문 지식
+YACHT_KNOWLEDGE = """
+요트 조종, 항해 기술, 세일 세팅, 마스트 조정, 스프레더 사용, 
+풍향 분석, 레이스 전략, 안전 규칙 등 요트 관련 전반적인 전문 지식
+"""
+
 @app.post("/chat")
 def chat(message: Message):
     try:
+        # 질문 + 요트 전문 지식 컨텍스트 포함
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": message.user_input}]
+            messages=[
+                {"role": "system", "content": f"당신은 요트 전문가입니다. {YACHT_KNOWLEDGE}"},
+                {"role": "user", "content": message.user_input}
+            ],
+            max_tokens=150
         )
         answer = response.choices[0].message.content
     except Exception as e:
         answer = f"Error: {str(e)}"
     return {"response": answer}
 
-# 간단한 채팅 UI
 @app.get("/", response_class=HTMLResponse)
 def home():
     return """
@@ -62,7 +70,6 @@ def home():
             <input id="userInput" placeholder="메시지를 입력하세요" onkeypress="handleKey(event)">
             <button onclick="sendMessage()">Send</button>
         </div>
-
         <script>
         const chatBox = document.getElementById("chatBox");
 
@@ -92,6 +99,11 @@ def home():
         function handleKey(e) {
             if (e.key === "Enter") sendMessage();
         }
+        </script>
+    </body>
+    </html>
+    """
+
         </script>
     </body>
     </html>
