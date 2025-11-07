@@ -1,14 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-import openai
+import openai, os
 
-# OpenAI API 키 설정 (환경 변수로 관리하는 것이 안전)
-openai.api_key = "YOUR_OPENAI_API_KEY"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = FastAPI()
 
-# CORS 설정 (웹 브라우저에서 호출 가능하도록)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,15 +20,29 @@ class Message(BaseModel):
 
 @app.post("/chat")
 def chat(message: Message):
-    user_input = message.user_input
-    # OpenAI GPT 모델 호출
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": user_input}]
+        messages=[{"role": "user", "content": message.user_input}]
     )
-    answer = response.choices[0].message.content
-    return {"response": answer}
+    return {"response": response.choices[0].message.content}
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello Yacht Expert AI"}
+@app.get("/", response_class=HTMLResponse)
+def home():
+    return """
+    <h1>Yacht Expert AI</h1>
+    <input id="userInput" placeholder="Type your message"/>
+    <button onclick="sendMessage()">Send</button>
+    <p id="response"></p>
+    <script>
+    async function sendMessage() {
+        const input = document.getElementById("userInput").value;
+        const res = await fetch('/chat', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({user_input: input})
+        });
+        const data = await res.json();
+        document.getElementById('response').innerText = data.response;
+    }
+    </script>
+    """
