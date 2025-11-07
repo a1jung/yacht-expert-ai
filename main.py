@@ -1,14 +1,12 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-import os
-import openai
+import random
 
+# 무료 모드용 데이터베이스 import
 from yacht_knowledge import yacht_data
-from fitness_knowledge import fitness_data
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
+from training_knowledge import training_data
 
 app = FastAPI()
 
@@ -22,80 +20,53 @@ app.add_middleware(
 class Message(BaseModel):
     user_input: str
     age: int = None
-    focus: str = None
+    height: float = None
+    weight: float = None
 
-def get_response(message: Message):
-    # 체력 루틴 관련 질문이면 fitness_data 사용
-    if "운동" in message.user_input or "체력" in message.user_input:
-        age_group = "teen" if message.age and message.age < 20 else "adult"
-        focus = message.focus if message.focus in fitness_data[age_group] else "전신"
-        routine = fitness_data[age_group][focus]
-        return f"{age_group} {focus} 운동 루틴 추천: {routine}"
-    
-    # 요트 질문이면 yacht_data 사용
-    for key, content in yacht_data.items():
-        if key in message.user_input:
-            return content
-    
-    # OpenAI 무료 fallback
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": message.user_input}]
-        )
-        return response.choices[0].message.content
-    except:
-        return "죄송합니다, 현재 요트 전문 지식 또는 무료 AI 모드에서 답변할 수 없습니다."
-
+# 무료 fallback 모드: 입력된 키워드로 지식베이스에서 답변
 @app.post("/chat")
-async def chat(message: Message):
-    reply = get_response(message)
-    return {"response": reply}
+def chat(message: Message):
+    user_text = message.user_input.lower()
+    response = "죄송해요, 관련 정보가 없습니다."
+
+    # 요트 지식 검색
+    for keyword, info in yacht_data.items():
+        if keyword in user_text:
+            response = info
+            break
+    
+    # 체력 훈련 요청 감지
+    if "운동" in user_text or "루틴" in user_text:
+        age_group = "teen" if message.age and message.age < 19 else "adult"
+        response = training_data[age_group]
+        if message.height and message.weight:
+            bmi = message.weight / ((message.height / 100) ** 2)
+            response += f"\n추가로 BMI: {bmi:.1f} 기준 맞춤 루틴 추천 가능"
+
+    return {"response": response}
 
 @app.get("/", response_class=HTMLResponse)
-async def home():
+def home():
     return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <title>Yacht Expert AI</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 50px; background: #f0f8ff; }
-        #chatBox { width: 500px; max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: #fff; }
-        #userInput { width: 400px; padding: 5px; }
-        button { padding: 5px 10px; }
-        .msg { margin: 5px 0; }
-        .user { color: blue; }
-        .ai { color: green; }
-    </style>
-    </head>
-    <body>
-        <h1>Yacht Expert AI</h1>
-        <div id="chatBox"></div>
-        <input id="userInput" placeholder="질문을 입력하세요"/>
-        <button onclick="sendMessage()">Send</button>
-
-        <script>
-        const chatBox = document.getElementById("chatBox");
-        document.getElementById("userInput").addEventListener("keydown", function(e){
-            if(e.key === "Enter") sendMessage();
+    <h1>Yacht Expert AI - 무료 모드</h1>
+    <input id="userInput" placeholder="질문을 입력하세요" style="width:300px"/>
+    <button onclick="sendMessage()">Send</button>
+    <p id="response"></p>
+    <script>
+    async function sendMessage() {
+        const input = document.getElementById("userInput").value;
+        const res = await fetch('/chat', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({user_input: input})
         });
-
-        async function sendMessage(){
-            const input = document.getElementById("userInput").value;
-            if(!input) return;
-            chatBox.innerHTML += `<div class="msg user">You: ${input}</div>`;
-            document.getElementById("userInput").value = "";
-            const res = await fetch('/chat', {
-                method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({user_input: input})
-            });
-            const data = await res.json();
-            chatBox.innerHTML += `<div class="msg ai">AI: ${data.response}</div>`;
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-        </script>
-    </body>
-    </html>
+        const data = await res.json();
+        document.getElementById('response').innerText = data.response;
+    }
+    </script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        input, button { padding: 5px; margin: 5px 0; }
+        p { font-weight: bold; }
+    </style>
     """
