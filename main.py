@@ -2,12 +2,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-import openai, os
+from openai import OpenAI
+import os
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# OpenAI 클라이언트 설정
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = FastAPI()
 
+# CORS 설정
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,14 +21,18 @@ app.add_middleware(
 class Message(BaseModel):
     user_input: str
 
+# 채팅 엔드포인트
 @app.post("/chat")
 def chat(message: Message):
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": message.user_input}]
+        messages=[
+            {"role": "user", "content": message.user_input}
+        ]
     )
     return {"response": response.choices[0].message.content}
 
+# 간단한 프론트엔드 페이지
 @app.get("/", response_class=HTMLResponse)
 def home():
     return """
@@ -38,7 +45,7 @@ def home():
         const input = document.getElementById("userInput").value;
         const res = await fetch('/chat', {
             method: 'POST',
-            headers: {'Content-Type':'application/json'},
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({user_input: input})
         });
         const data = await res.json();
