@@ -6,8 +6,8 @@ import uvicorn
 import random
 
 # 내부 지식 데이터 불러오기
-from knowledge_yacht import get_yacht_answer
-from knowledge_training import get_training_answer
+from sailing_knowledge import get_yacht_answer
+from fitness_knowledge import get_fitness_answer
 
 app = FastAPI()
 
