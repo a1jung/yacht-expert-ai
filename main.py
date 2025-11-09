@@ -1,44 +1,32 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 import json
-import os
+from pathlib import Path
 
-app = FastAPI(title="YachtExpertAI")
-
-# CORS 설정 (필요 시)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # 모든 도메인 허용
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = FastAPI()
 
 # JSON 파일 경로
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SAILING_FILE = os.path.join(BASE_DIR, "sailing_knowledge.json")
-FITNESS_FILE = os.path.join(BASE_DIR, "fitness_knowledge.json")
+base_path = Path(__file__).parent
+sailing_file = base_path / "sailing_knowledge.json"
+fitness_file = base_path / "fitness_knowledge.json"
 
-# JSON 불러오기 함수
-def load_json(path):
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+# 파일 읽기
+with open(sailing_file, "r", encoding="utf-8") as f:
+    sailing_data = json.load(f)
 
-# 데이터 로드
-sailing_data = load_json(SAILING_FILE)
-fitness_data = load_json(FITNESS_FILE)
+with open(fitness_file, "r", encoding="utf-8") as f:
+    fitness_data = json.load(f)
 
-# 루트 라우트
+# 기본 경로
 @app.get("/")
-def root():
+def read_root():
     return {"message": "YachtExpertAI API is running!"}
 
-# 세일링 지식 라우트
+# Sailing knowledge
 @app.get("/sailing")
-def get_sailing():
+def get_sailing_knowledge():
     return sailing_data
 
-# 피트니스 지식 라우트
+# Fitness knowledge
 @app.get("/fitness")
-def get_fitness():
+def get_fitness_knowledge():
     return fitness_data
