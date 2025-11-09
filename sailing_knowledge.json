@@ -1,0 +1,142 @@
+{
+  "classes": ["레이저", "470", "레디얼"],
+  "레이저": {
+    "description": "레이저 요트는 단일 핸들러와 단일 세일로 구성된 경량 요트이며, 민첩성과 개인 기술이 중요합니다.",
+    "mast_tuning": {
+      "forward": {
+        "main_sail": {
+          "top": "살짝 열림",
+          "bottom": "평평함",
+          "luff_tension": "강함"
+        },
+        "jib_sail": {
+          "top": "팽팽함",
+          "bottom": "평평함"
+        },
+        "performance": {
+          "upwind": "개선",
+          "downwind": "감소"
+        }
+      },
+      "aft": {
+        "main_sail": {
+          "top": "닫힘",
+          "bottom": "더 깊음",
+          "luff_tension": "느슨함"
+        },
+        "jib_sail": {
+          "top": "느슨함",
+          "bottom": "더 깊음"
+        },
+        "performance": {
+          "upwind": "감소",
+          "downwind": "개선"
+        }
+      }
+    },
+    "wind_adjustments": {
+      "light": {
+        "main_sail": "상단 닫힘, 하단 열림",
+        "jib_sail": "루프 느슨함, 푸트 열림"
+      },
+      "medium": {
+        "main_sail": "상단 약간 열림, 하단 평평",
+        "jib_sail": "루프 팽팽, 푸트 평평"
+      },
+      "strong": {
+        "main_sail": "상단 열림, 하단 평평",
+        "jib_sail": "루프 강하게 팽팽, 푸트 평평"
+      }
+    }
+  },
+  "470": {
+    "description": "470 요트는 2인승 딩기 요트로, 복잡한 세일 조정과 밸런스 조절이 필요합니다.",
+    "mast_tuning": {
+      "forward": {
+        "main_sail": {
+          "top": "약간 열림",
+          "bottom": "평평함",
+          "luff_tension": "강함",
+          "foot_tension": "강함",
+          "bend": "증가"
+        },
+        "jib_sail": {
+          "top": "팽팽함",
+          "bottom": "평평함"
+        },
+        "rudder": "조정 민감"
+      },
+      "aft": {
+        "main_sail": {
+          "top": "닫힘",
+          "bottom": "깊음",
+          "luff_tension": "느슨함",
+          "foot_tension": "느슨함",
+          "bend": "감소"
+        },
+        "jib_sail": {
+          "top": "느슨함",
+          "bottom": "깊음"
+        },
+        "rudder": "조정 둔감"
+      }
+    },
+    "wind_adjustments": {
+      "light": {
+        "main_sail": "상단 닫힘, 하단 열림",
+        "jib_sail": "루프 느슨함, 푸트 열림"
+      },
+      "medium": {
+        "main_sail": "상단 약간 열림, 하단 평평",
+        "jib_sail": "루프 팽팽, 푸트 평평"
+      },
+      "strong": {
+        "main_sail": "상단 열림, 하단 평평",
+        "jib_sail": "루프 강하게 팽팽, 푸트 평평"
+      }
+    },
+    "performance_effects": {
+      "upwind": "마스트 앞으로 이동 시 성능 개선",
+      "downwind": "마스트 앞으로 이동 시 성능 감소",
+      "balance": "마스트 위치에 따라 무게중심 변화, 바우/스턴 조정 필요"
+    }
+  },
+  "레디얼": {
+    "description": "레디얼 요트는 레이저 요트의 변형으로, 어린이나 여성 선수를 위한 작은 세일 면적을 가진 단일 핸들러 요트입니다.",
+    "mast_tuning": {
+      "forward": {
+        "main_sail": {
+          "top": "약간 열림",
+          "bottom": "평평",
+          "luff_tension": "강함"
+        },
+        "performance": {
+          "upwind": "조금 개선",
+          "downwind": "약간 감소"
+        }
+      },
+      "aft": {
+        "main_sail": {
+          "top": "닫힘",
+          "bottom": "깊음",
+          "luff_tension": "느슨함"
+        },
+        "performance": {
+          "upwind": "조금 감소",
+          "downwind": "조금 개선"
+        }
+      }
+    },
+    "wind_adjustments": {
+      "light": {
+        "main_sail": "상단 닫힘, 하단 열림"
+      },
+      "medium": {
+        "main_sail": "상단 약간 열림, 하단 평평"
+      },
+      "strong": {
+        "main_sail": "상단 열림, 하단 평평"
+      }
+    }
+  }
+}
