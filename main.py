@@ -15,18 +15,19 @@ def load_json(file_path):
 sailing_knowledge = load_json(SAILING_FILE)
 fitness_knowledge = load_json(FITNESS_FILE)
 
-# --- 예시 함수: 요트 정보 조회 ---
+# --- 요트 정보 조회 함수 ---
 def get_sailing_info(yacht_class):
     yacht = sailing_knowledge.get(yacht_class)
     if not yacht:
         return f"{yacht_class} 클래스 정보가 없습니다."
     info = f"클래스: {yacht_class}\n설명: {yacht['description']}\n"
-    info += "풍향별 세일 조정:\n"
-    for wind, adjustment in yacht.get("wind_adjustments", {}).items():
-        info += f"  {wind} 바람: {adjustment}\n"
+    if 'wind_adjustments' in yacht:
+        info += "풍향별 세일 조정:\n"
+        for wind, adjustment in yacht['wind_adjustments'].items():
+            info += f"  {wind} 바람: {adjustment}\n"
     return info
 
-# --- 예시 함수: 피트니스 정보 조회 ---
+# --- 피트니스 정보 조회 함수 ---
 def get_fitness_info(topic):
     ft = fitness_knowledge.get(topic)
     if not ft:
@@ -43,14 +44,36 @@ def get_fitness_info(topic):
                 info += f"  {k}: {v}\n"
     return info
 
-# --- 실행 예시 ---
-if __name__ == "__main__":
-    print("=== 요트 정보 ===")
-    for yacht_class in sailing_knowledge["classes"]:
-        print(get_sailing_info(yacht_class))
-        print("-" * 40)
+# --- 인터랙티브 실행 ---
+def interactive_mode():
+    print("=== YachtExpertAI ===")
+    while True:
+        print("\n[1] 요트 정보 조회")
+        print("[2] 피트니스 정보 조회")
+        print("[3] 전체 요트 정보 출력")
+        print("[4] 전체 피트니스 정보 출력")
+        print("[0] 종료")
+        choice = input("선택: ").strip()
+        
+        if choice == "1":
+            yacht_class = input("조회할 요트 클래스 입력: ").strip()
+            print(get_sailing_info(yacht_class))
+        elif choice == "2":
+            topic = input("조회할 피트니스 주제 입력: ").strip()
+            print(get_fitness_info(topic))
+        elif choice == "3":
+            for yacht_class in sailing_knowledge["classes"]:
+                print(get_sailing_info(yacht_class))
+                print("-" * 40)
+        elif choice == "4":
+            for topic in fitness_knowledge.keys():
+                print(get_fitness_info(topic))
+                print("-" * 40)
+        elif choice == "0":
+            print("프로그램 종료")
+            break
+        else:
+            print("올바른 선택이 아닙니다. 다시 입력하세요.")
 
-    print("\n=== 피트니스 정보 ===")
-    for topic in fitness_knowledge.keys():
-        print(get_fitness_info(topic))
-        print("-" * 40)
+if __name__ == "__main__":
+    interactive_mode()
