@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+<<<<<<< HEAD
     <title>YachtExpertAI Chat</title>
     <style>
         body {
@@ -120,6 +121,52 @@
                 e.preventDefault();
                 form.dispatchEvent(new Event('submit'));
             }
+=======
+    <title>YachtExpertAI</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; display: flex; justify-content: center; padding: 50px; }
+        #chat { width: 500px; background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        #messages { height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+        .message { margin: 5px 0; }
+        .user { color: blue; }
+        .bot { color: green; }
+        input { width: 80%; padding: 10px; }
+        button { width: 18%; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div id="chat">
+        <div id="messages"></div>
+        <input type="text" id="input" placeholder="메시지를 입력하세요..." />
+        <button onclick="sendMessage()">전송</button>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById("input");
+            const message = input.value.trim();
+            if (!message) return;
+
+            const messagesDiv = document.getElementById("messages");
+            messagesDiv.innerHTML += `<div class="message user">나: ${message}</div>`;
+
+            input.value = "";
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            const response = await fetch("/ask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message })
+            });
+
+            const data = await response.json();
+            messagesDiv.innerHTML += `<div class="message bot">AI: <pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        document.getElementById("input").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") sendMessage();
+>>>>>>> 793566c (add web ui and main server code)
         });
     </script>
 </body>
