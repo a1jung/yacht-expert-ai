@@ -6,18 +6,18 @@ import random
 
 app = FastAPI()
 
-# ✅ CORS 설정 (모든 도메인, 모든 메서드, 모든 헤더 허용)
+# ✅ CORS 설정 (Render 등 외부에서 접근 가능)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],        # 모든 도메인 허용
-    allow_methods=["*"],        # GET, POST, OPTIONS 등 모두 허용
-    allow_headers=["*"],        # 모든 헤더 허용
+    allow_origins=["*"],       # 모든 도메인 허용
+    allow_methods=["*"],       # GET, POST, OPTIONS 등 모두 허용
+    allow_headers=["*"],       # 모든 헤더 허용
 )
 
 # ✅ static 폴더 연결
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# ✅ 예시 데이터
+# ✅ 예시 데이터 (실제 데이터는 sailing_knowledge.json 사용 가능)
 sailing_data = [
     {"질문": "요트란", "답변": "요트는 바다나 호수에서 항해하는 작은 선박입니다."},
     {"질문": "마스트", "답변": "마스트는 요트의 세일을 지탱하는 기둥입니다."},
