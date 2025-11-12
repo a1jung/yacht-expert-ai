@@ -2,56 +2,77 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+import json
 import random
+import os
 
 app = FastAPI()
 
-# ✅ CORS 설정 (Render 등 외부에서 접근 가능)
+# ✅ CORS 허용
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],       # 모든 도메인 허용
-    allow_methods=["*"],       # GET, POST, OPTIONS 등 모두 허용
-    allow_headers=["*"],       # 모든 헤더 허용
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 # ✅ static 폴더 연결
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# ✅ 예시 데이터 (실제 데이터는 sailing_knowledge.json 사용 가능)
-sailing_data = [
-    {"질문": "요트란", "답변": "요트는 바다나 호수에서 항해하는 작은 선박입니다."},
-    {"질문": "마스트", "답변": "마스트는 요트의 세일을 지탱하는 기둥입니다."},
-    {"질문": "세일", "답변": "세일은 바람을 받아 요트를 앞으로 나아가게 합니다."}
-]
+# ✅ sailing_knowledge.json 로드
+json_path = os.path.join(os.path.dirname(__file__), "sailing_knowledge.json")
+with open(json_path, "r", encoding="utf-8") as f:
+    sailing_data = json.load(f)
 
 # ✅ UI 페이지
 @app.get("/", response_class=HTMLResponse)
 async def get_ui():
-    with open("static/index.html", "r", encoding="utf-8") as f:
+    with open(os.path.join("static", "index.html"), "r", encoding="utf-8") as f:
         return f.read()
 
-# ✅ /ask POST API
+# ✅ 대화 히스토리 저장용 (서버가 살아 있는 동안)
+chat_history = {}
+
+# ✅ /ask POST API (대화 문맥 유지)
 @app.post("/ask")
 async def ask(request: Request):
     try:
         data = await request.json()
+        user_id = data.get("user_id", "default")  # 사용자 구분용
         message = data.get("message", "").lower()
 
-        # 데이터 검색
-        best_match = None
-        for item in sailing_data:
-            if item["질문"].lower() in message:
-                best_match = item
-                break
+        if user_id not in chat_history:
+            chat_history[user_id] = []
 
-        if best_match:
+        # 이전 대화 기록에 추가
+        chat_history[user_id].append({"role": "user", "message": message})
+
+        # 질문 키워드 매칭
+        matches = []
+        for item in sailing_data:
+            if any(word in message for word in item["질문"].lower().split()):
+                matches.append(item)
+
+        if matches:
+            best_match = random.choice(matches)
             answer = best_match["답변"]
         else:
-            answer = random.choice([
-                "그 부분은 아직 데이터에 없어요. 조금 더 구체적으로 질문해 주세요.",
-                "조금 더 자세히 설명해 주시면 답변드릴 수 있어요.",
-                "해당 주제에 대한 데이터가 아직 부족해요. 곧 업데이트할게요!"
-            ])
+            # 이전 대화 참고 + 랜덤 보충 답변
+            if chat_history[user_id]:
+                answer = random.choice([
+                    "이전 대화를 참고하면 조금 더 명확하게 질문하실 수 있어요.",
+                    "조금 더 자세히 설명해 주시면 이어서 답변드릴 수 있습니다.",
+                    "그 부분은 데이터가 부족하지만, 다른 질문을 해주시면 도움이 됩니다."
+                ])
+            else:
+                answer = random.choice([
+                    "안녕하세요! 무엇이 궁금하신가요?",
+                    "좋은 질문이에요! 하지만 데이터가 부족합니다.",
+                    "조금 더 구체적으로 질문해 주세요."
+                ])
+
+        # 대화 기록에 봇 답변 추가
+        chat_history[user_id].append({"role": "bot", "message": answer})
 
         return JSONResponse({"message": answer})
 
