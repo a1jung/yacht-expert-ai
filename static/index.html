@@ -7,7 +7,7 @@
 <style>
 body { font-family:'Segoe UI',sans-serif; background:#f2f5f8; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; height:100vh; margin:0; padding-top:40px; }
 h1 { color:#004c91; margin-bottom:20px; }
-#chat-box { width:90%; max-width:600px; height:70vh; overflow-y:auto; background:white; border-radius:12px; padding:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); display:flex; flex-direction:column; gap:10px; }
+#chat-box { width:90%; max-width:600px; height:60vh; overflow-y:auto; background:white; border-radius:12px; padding:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); display:flex; flex-direction:column; gap:10px; }
 .msg { padding:10px 14px; border-radius:10px; max-width:80%; line-height:1.4em; word-wrap:break-word; }
 .user { background:#d1e7ff; align-self:flex-end; }
 .bot { background:#e9ecef; align-self:flex-start; }
@@ -15,6 +15,9 @@ h1 { color:#004c91; margin-bottom:20px; }
 input { flex:1; padding:12px; border-radius:8px 0 0 8px; border:1px solid #ccc; outline:none; }
 button { padding:12px 20px; border:none; background:#004c91; color:white; border-radius:0 8px 8px 0; cursor:pointer; }
 button:hover { background:#006ad1; }
+#recommended { width:90%; max-width:600px; margin-top:10px; display:flex; flex-wrap:wrap; gap:10px; }
+.reco-btn { padding:8px 12px; border:none; border-radius:8px; background:#e9ecef; cursor:pointer; }
+.reco-btn:hover { background:#d1e7ff; }
 </style>
 </head>
 <body>
@@ -29,11 +32,14 @@ button:hover { background:#006ad1; }
 <button onclick="sendMessage()">전송</button>
 </div>
 
+<div id="recommended"></div>
+
 <script>
 const chatBox = document.getElementById('chat-box');
 const input = document.getElementById('user-input');
+const recommendedBox = document.getElementById('recommended');
 
-// 사용자 ID 자동 생성 (브라우저 세션 기준)
+// 사용자 ID 자동 생성 (세션 기준)
 const user_id = Math.random().toString(36).substring(2,10);
 
 function appendMessage(text, sender) {
@@ -42,6 +48,20 @@ function appendMessage(text, sender) {
     msg.textContent = text;
     chatBox.appendChild(msg);
     chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function showRecommended(buttons) {
+    recommendedBox.innerHTML = '';
+    buttons.forEach(q => {
+        const btn = document.createElement('button');
+        btn.classList.add('reco-btn');
+        btn.textContent = q;
+        btn.onclick = () => {
+            input.value = q;
+            sendMessage();
+        };
+        recommendedBox.appendChild(btn);
+    });
 }
 
 async function sendMessage() {
@@ -59,15 +79,13 @@ async function sendMessage() {
         if(!response.ok) throw new Error(`서버 오류: ${response.status}`);
         const data = await response.json();
         appendMessage(data.message || "⚠️ 서버 응답 없음",'bot');
+
+        if(data.recommended) showRecommended(data.recommended);
+
     } catch(err) {
         appendMessage(`⚠️ 서버와 연결할 수 없습니다: ${err.message}`,'bot');
     }
 }
-
-input.addEventListener('keydown',(e)=>{if(e.key==='Enter')sendMessage();});
-</script>
-</body>
-</html>
 
 input.addEventListener('keydown',(e)=>{if(e.key==='Enter')sendMessage();});
 </script>
