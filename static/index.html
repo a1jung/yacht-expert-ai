@@ -1,69 +1,67 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>요트 전문가 AI</title>
-  <style>
-    body { font-family:'Segoe UI',sans-serif; background:#f2f5f8; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; height:100vh; margin:0; padding-top:40px; }
-    h1 { color:#004c91; margin-bottom:20px; }
-    #chat-box { width:90%; max-width:600px; height:70vh; overflow-y:auto; background:white; border-radius:12px; padding:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); display:flex; flex-direction:column; gap:10px; }
-    .msg { padding:10px 14px; border-radius:10px; max-width:80%; line-height:1.4em; word-wrap:break-word; }
-    .user { background:#d1e7ff; align-self:flex-end; }
-    .bot { background:#e9ecef; align-self:flex-start; }
-    #input-area { display:flex; width:90%; max-width:600px; margin-top:15px; }
-    input { flex:1; padding:12px; border-radius:8px 0 0 8px; border:1px solid #ccc; outline:none; }
-    button { padding:12px 20px; border:none; background:#004c91; color:white; border-radius:0 8px 8px 0; cursor:pointer; }
-    button:hover { background:#006ad1; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>요트 전문가 AI</title>
+<style>
+body { font-family:'Segoe UI',sans-serif; background:#f2f5f8; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; height:100vh; margin:0; padding-top:40px; }
+h1 { color:#004c91; margin-bottom:20px; }
+#chat-box { width:90%; max-width:600px; height:70vh; overflow-y:auto; background:white; border-radius:12px; padding:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); display:flex; flex-direction:column; gap:10px; }
+.msg { padding:10px 14px; border-radius:10px; max-width:80%; line-height:1.4em; word-wrap:break-word; }
+.user { background:#d1e7ff; align-self:flex-end; }
+.bot { background:#e9ecef; align-self:flex-start; }
+#input-area { display:flex; width:90%; max-width:600px; margin-top:15px; }
+input { flex:1; padding:12px; border-radius:8px 0 0 8px; border:1px solid #ccc; outline:none; }
+button { padding:12px 20px; border:none; background:#004c91; color:white; border-radius:0 8px 8px 0; cursor:pointer; }
+button:hover { background:#006ad1; }
+</style>
 </head>
 <body>
-  <h1>⛵ 요트 전문가 AI</h1>
+<h1>⛵ 요트 전문가 AI</h1>
 
-  <div id="chat-box">
-    <div class="bot msg">안녕하세요! 요트 전문가 AI입니다. 무엇이 궁금하신가요?</div>
-  </div>
+<div id="chat-box">
+<div class="bot msg">안녕하세요! 요트 전문가 AI입니다. 무엇이 궁금하신가요?</div>
+</div>
 
-  <div id="input-area">
-    <input id="user-input" type="text" placeholder="메시지를 입력하세요..." />
-    <button onclick="sendMessage()">전송</button>
-  </div>
+<div id="input-area">
+<input id="user-input" type="text" placeholder="메시지를 입력하세요..." />
+<button onclick="sendMessage()">전송</button>
+</div>
 
-  <script>
-    const chatBox = document.getElementById('chat-box');
-    const input = document.getElementById('user-input');
+<script>
+const chatBox = document.getElementById('chat-box');
+const input = document.getElementById('user-input');
 
-    function appendMessage(text, sender) {
-      const msg = document.createElement('div');
-      msg.classList.add('msg', sender);
-      msg.textContent = text;
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+function appendMessage(text, sender) {
+    const msg = document.createElement('div');
+    msg.classList.add('msg', sender);
+    msg.textContent = text;
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-    async function sendMessage() {
-      const question = input.value.trim();
-      if(!question) return;
-      appendMessage(question,'user');
-      input.value='';
+async function sendMessage() {
+    const question = input.value.trim();
+    if(!question) return;
+    appendMessage(question,'user');
+    input.value='';
 
-      try {
-        // ✅ Render 배포용: 상대경로 사용
+    try {
         const response = await fetch('/ask', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({message:question})
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({message:question})
         });
-
         if(!response.ok) throw new Error(`서버 오류: ${response.status}`);
         const data = await response.json();
         appendMessage(data.message || "⚠️ 서버 응답 없음",'bot');
-      } catch(err) {
+    } catch(err) {
         appendMessage(`⚠️ 서버와 연결할 수 없습니다: ${err.message}`,'bot');
-      }
     }
+}
 
-    input.addEventListener('keydown',(e)=>{if(e.key==='Enter')sendMessage();});
-  </script>
+input.addEventListener('keydown',(e)=>{if(e.key==='Enter')sendMessage();});
+</script>
 </body>
 </html>
