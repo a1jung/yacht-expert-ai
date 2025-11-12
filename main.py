@@ -24,12 +24,12 @@ async def get_ui():
 @app.post("/ask")
 async def ask_question(request: Request):
     data = await request.json()
-    question = data.get("question", "").lower()
+    message = data.get("message", "").lower()  # JS와 key 이름 통일
 
     # 데이터베이스에서 일치하는 내용 검색
     best_match = None
     for item in sailing_data:
-        if item["질문"].lower() in question:
+        if item["질문"].lower() in message:
             best_match = item
             break
 
@@ -43,4 +43,4 @@ async def ask_question(request: Request):
             "해당 주제에 대한 데이터가 아직 부족해요. 곧 업데이트할게요!"
         ])
 
-    return JSONResponse({"answer": answer})
+    return JSONResponse({"message": answer})  # JS에서 message로 읽도록 통일
