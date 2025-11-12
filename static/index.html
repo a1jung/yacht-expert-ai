@@ -5,73 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>요트 전문가 AI</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f2f5f8;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      height: 100vh;
-      margin: 0;
-      padding-top: 40px;
-    }
-    h1 {
-      color: #004c91;
-      margin-bottom: 20px;
-    }
-    #chat-box {
-      width: 90%;
-      max-width: 600px;
-      height: 70vh;
-      overflow-y: auto;
-      background: white;
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .msg {
-      padding: 10px 14px;
-      border-radius: 10px;
-      max-width: 80%;
-      line-height: 1.4em;
-      word-wrap: break-word;
-    }
-    .user {
-      background: #d1e7ff;
-      align-self: flex-end;
-    }
-    .bot {
-      background: #e9ecef;
-      align-self: flex-start;
-    }
-    #input-area {
-      display: flex;
-      width: 90%;
-      max-width: 600px;
-      margin-top: 15px;
-    }
-    input {
-      flex: 1;
-      padding: 12px;
-      border-radius: 8px 0 0 8px;
-      border: 1px solid #ccc;
-      outline: none;
-    }
-    button {
-      padding: 12px 20px;
-      border: none;
-      background: #004c91;
-      color: white;
-      border-radius: 0 8px 8px 0;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #006ad1;
-    }
+    body { font-family:'Segoe UI',sans-serif; background:#f2f5f8; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; height:100vh; margin:0; padding-top:40px; }
+    h1 { color:#004c91; margin-bottom:20px; }
+    #chat-box { width:90%; max-width:600px; height:70vh; overflow-y:auto; background:white; border-radius:12px; padding:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); display:flex; flex-direction:column; gap:10px; }
+    .msg { padding:10px 14px; border-radius:10px; max-width:80%; line-height:1.4em; word-wrap:break-word; }
+    .user { background:#d1e7ff; align-self:flex-end; }
+    .bot { background:#e9ecef; align-self:flex-start; }
+    #input-area { display:flex; width:90%; max-width:600px; margin-top:15px; }
+    input { flex:1; padding:12px; border-radius:8px 0 0 8px; border:1px solid #ccc; outline:none; }
+    button { padding:12px 20px; border:none; background:#004c91; color:white; border-radius:0 8px 8px 0; cursor:pointer; }
+    button:hover { background:#006ad1; }
   </style>
 </head>
 <body>
@@ -100,30 +43,26 @@
 
     async function sendMessage() {
       const question = input.value.trim();
-      if (!question) return;
-      appendMessage(question, 'user');
-      input.value = '';
+      if(!question) return;
+      appendMessage(question,'user');
+      input.value='';
 
       try {
-        const response = await fetch('http://localhost:8000/ask', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: question })
+        const response = await fetch('http://127.0.0.1:8000/ask', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({message:question})
         });
 
-        if (!response.ok) throw new Error('서버 오류');
+        if(!response.ok) throw new Error('서버 오류');
         const data = await response.json();
-        appendMessage(data.message, 'bot');
-      } catch (error) {
-        appendMessage('⚠️ 서버와 연결할 수 없습니다.', 'bot');
+        appendMessage(data.message,'bot');
+      } catch(err) {
+        appendMessage('⚠️ 서버와 연결할 수 없습니다.','bot');
       }
     }
 
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sendMessage();
-    });
+    input.addEventListener('keydown',(e)=>{if(e.key==='Enter')sendMessage();});
   </script>
 </body>
-</html>
-
 </html>
