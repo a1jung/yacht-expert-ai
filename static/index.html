@@ -105,13 +105,15 @@
       input.value = '';
 
       try {
-        const response = await fetch('/ask', {
+        const response = await fetch('http://localhost:8000/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question })
+          body: JSON.stringify({ message: question }) // ✅ 백엔드 키와 통일
         });
+
+        if (!response.ok) throw new Error('서버 오류');
         const data = await response.json();
-        appendMessage(data.answer, 'bot');
+        appendMessage(data.message, 'bot'); // ✅ 백엔드 응답 키와 통일
       } catch (error) {
         appendMessage('⚠️ 서버와 연결할 수 없습니다.', 'bot');
       }
